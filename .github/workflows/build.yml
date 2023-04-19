@@ -7,6 +7,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GPG_KEY_URL: "https://github.com/slurmorg/build-containers-trusted/raw/main/key.gpg"
+      ROOTFS_URL: "https://github.com/slurmorg/build-containers-trusted/raw/main/rootfs.tar.gz"
+      MAVEN_URL: "https://github.com/slurmorg/build-containers-trusted/raw/main/apache-maven-3.9.1-bin.tar.gz"
+      TOMCAT_URL: "https://github.com/slurmorg/build-containers-trusted/raw/main/apache-tomcat-10.1.7.tar.gz"
+      FINGERPRINT: "70092656FB28DBB76C3BB42E89619023B6601234"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -16,10 +22,7 @@ jobs:
           image: tomcat
           tags: latest
           enableBuildKit: true
-          buildArgs: GPG_KEY_URL="https://github.com/slurmorg/build-containers-trusted/raw/main/key.gpg" ,ROOTFS_URL="https://github.com/slurmorg/build-containers-trusted/raw/main/rootfs.tar.gz"
-            MAVEN_URL="https://github.com/slurmorg/build-containers-trusted/raw/main/apache-maven-3.9.1-bin.tar.gz"
-            TOMCAT_URL="https://github.com/slurmorg/build-containers-trusted/raw/main/apache-tomcat-10.1.7.tar.gz"
-            FINGERPRINT="70092656FB28DBB76C3BB42E89619023B6601234"
+          buildArgs: GPG_KEY_URL=$GPG_KEY_URL, ROOTFS_URL=$ROOTFS_URL, MAVEN_URL=$MAVEN_URL, TOMCAT_URL=$TOMCAT_URL, FINGERPRINT=$FINGERPRINT
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
