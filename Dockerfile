@@ -1,12 +1,12 @@
 FROM bellsoft/alpaquita-linux-gcc:12.2-glibc as builder
 LABEL org.opencontainers.image.source="https://github.com/Nikki18977/0303_tomcat"
 
-ARG GPG_KEY_URL='https://github.com/slurmorg/build-containers-trusted/raw/main/key.gpg'
-ARG ROOTFS_URL='https://github.com/slurmorg/build-containers-trusted/raw/main/rootfs.tar.gz'
-ARG MAVEN_URL='https://github.com/slurmorg/build-containers-trusted/raw/main/apache-maven-3.9.1-bin.tar.gz'
-ARG TOMCAT_URL='https://github.com/slurmorg/build-containers-trusted/raw/main/apache-tomcat-10.1.7.tar.gz'
+ARG GPG_KEY_URL="https://github.com/slurmorg/build-containers-trusted/raw/main/key.gpg"
+ARG ROOTFS_URL="https://github.com/slurmorg/build-containers-trusted/raw/main/rootfs.tar.gz"
+ARG MAVEN_URL="https://github.com/slurmorg/build-containers-trusted/raw/main/apache-maven-3.9.1-bin.tar.gz"
+ARG TOMCAT_URL="https://github.com/slurmorg/build-containers-trusted/raw/main/apache-tomcat-10.1.7.tar.gz"
 
-ARG FINGERPRINT="70092656FB28DBB76C3BB42E89619023B6601234"
+ARG FINGERPRINT
 ENV FINGERPRINT=${FINGERPRINT}
 
 RUN touch url.txt &&\
@@ -53,11 +53,11 @@ FROM scratch as second_buider
 COPY --from=builder /tmp/rootfs/ /
 COPY --from=builder /tmp/apache-maven-3.9.1/ /opt/bin/maven
 
-ENV PATH=/usr/lib/jvm/jdk-17.0.6-bellsoft-x86_64/bin:/opt/bin/maven/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US.UTF-8:en
-ENV JAVA_HOME=/usr/lib/jvm/jdk-17.0.6-bellsoft-x86_64
-ENV MAVEN_HOME=/opt/bin/maven
+ENV PATH="/usr/lib/jvm/jdk-17.0.6-bellsoft-x86_64/bin:/opt/bin/maven/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV LANG="en_US.UTF-8"
+ENV LANGUAGE="en_US.UTF-8:en"
+ENV JAVA_HOME="/usr/lib/jvm/jdk-17.0.6-bellsoft-x86_64"
+ENV MAVEN_HOME="/opt/bin/maven"
 
 WORKDIR /app
 COPY . .
@@ -65,16 +65,16 @@ RUN mvn verify
 
 FROM scratch as final_buider
 
-ENV PATH=/usr/lib/jvm/jdk-17.0.6-bellsoft-x86_64/bin:/opt/bin/tomcat/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US.UTF-8:en
-ENV JAVA_HOME=/usr/lib/jvm/jdk-17.0.6-bellsoft-x86_64
-ENV CATALINA_HOME=/opt/bin/tomcat
-
-RUN rm -rf $CATALINA_HOME/webapps
+ENV PATH="/usr/lib/jvm/jdk-17.0.6-bellsoft-x86_64/bin:/opt/bin/tomcat/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV LANG="en_US.UTF-8"
+ENV LANGUAGE="en_US.UTF-8:en"
+ENV JAVA_HOME="/usr/lib/jvm/jdk-17.0.6-bellsoft-x86_64"
+ENV CATALINA_HOME="/opt/bin/tomcat"
 
 COPY --from=builder /tmp/rootfs/ /
 COPY --from=builder /tmp/apache-tomcat-10.1.7/ /opt/bin/tomcat
+
+RUN rm -rf $CATALINA_HOME/webapps
 COPY --from=second_buider /app/target/api.war $CATALINA_HOME/webapps/
 
 CMD catalina.sh run
